@@ -7,18 +7,18 @@ It shows the terminal menu and asks the user for input.
 Stage 3: registration, searching and JSON saving/loading are working.
 """
 
-import os
 from datetime import datetime
+from pathlib import Path
 
 from parcel import DATE_FORMAT
 from parcel_manager import ParcelManager
 
-DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                         "parcels.json")
+DATA_FILE = Path(__file__).parent / "parcels.json"
 
 
-def get_non_empty_input(prompt):
+def get_non_empty_input(prompt: str) -> str:
     """Ask the user for text and keep asking until something is typed."""
+
     while True:
         value = input(prompt).strip()
         if value:
@@ -26,7 +26,7 @@ def get_non_empty_input(prompt):
         print("This field cannot be empty. Please try again.")
 
 
-def get_arrival_time():
+def get_arrival_time() -> datetime:
     """
     Ask the user for the parcel's arrival date and time.
 
@@ -36,9 +36,11 @@ def get_arrival_time():
     Returns:
         datetime: The arrival date and time.
     """
+
     while True:
-        text = input("Arrival time (YYYY-MM-DD HH:MM), "
-                     "or press Enter for now: ").strip()
+        text = input(
+            "Arrival time (YYYY-MM-DD HH:MM), or press Enter for now: "
+        ).strip()
 
         if text == "":
             return datetime.now()
@@ -46,8 +48,7 @@ def get_arrival_time():
         try:
             arrival_time = datetime.strptime(text, DATE_FORMAT)
         except ValueError:
-            print("Invalid date/time. Example of a valid value: "
-                  "2026-11-26 14:30")
+            print("Invalid date/time. Example of a valid value: 2026-11-26 14:30")
             continue
 
         if arrival_time > datetime.now():
@@ -57,8 +58,9 @@ def get_arrival_time():
         return arrival_time
 
 
-def register_parcel_menu(manager):
+def register_parcel_menu(manager: ParcelManager) -> None:
     """Collect parcel details from the user and register the parcel."""
+
     print("\n--- Register Incoming Parcel ---")
     student_name = get_non_empty_input("Student name: ")
     room_number = get_non_empty_input("Room number: ").upper()
@@ -66,14 +68,16 @@ def register_parcel_menu(manager):
     arrival_time = get_arrival_time()
 
     try:
-        parcel = manager.register_parcel(student_name, room_number,
-                                         tracking_number, arrival_time)
+        parcel = manager.register_parcel(
+            student_name, room_number, tracking_number, arrival_time
+        )
     except ValueError as error:
         print(f"Registration failed: {error}")
         return
     except OSError as error:
-        print(f"Warning: the parcel was registered but could not be "
-              f"saved to the file: {error}")
+        print(
+            f"Warning: the parcel was registered but could not be saved to the file: {error}"
+        )
         return
 
     print("\nParcel registered and saved successfully!")
@@ -81,8 +85,9 @@ def register_parcel_menu(manager):
     print(f"Total parcels registered: {manager.count_parcels()}")
 
 
-def search_by_name_menu(manager):
+def search_by_name_menu(manager: ParcelManager) -> None:
     """Ask for a student name and show every matching parcel."""
+
     print("\n--- Search Parcel by Student Name ---")
     name = get_non_empty_input("Enter student name (full or part): ")
     results = manager.search_by_student_name(name)
@@ -96,23 +101,24 @@ def search_by_name_menu(manager):
         parcel.display()
 
 
-def search_by_tracking_menu(manager):
+def search_by_tracking_menu(manager: ParcelManager) -> None:
     """Ask for a tracking number and show the matching parcel."""
+
     print("\n--- Search Parcel by Tracking Number ---")
     tracking_number = get_non_empty_input("Enter tracking number: ")
     parcel = manager.find_by_tracking_number(tracking_number)
 
     if parcel is None:
-        print(f"No parcel found with tracking number "
-              f"'{tracking_number.upper()}'.")
+        print(f"No parcel found with tracking number '{tracking_number.upper()}'.")
         return
 
     print("\nParcel found:")
     parcel.display()
 
 
-def show_menu():
+def show_menu() -> None:
     """Print the main menu options."""
+
     print("\n===== Dormitory Parcel Management System =====")
     print("1. Register Incoming Parcel")
     print("2. Search Parcel by Student Name")
@@ -120,8 +126,9 @@ def show_menu():
     print("4. Save and Exit")
 
 
-def main():
+def main() -> None:
     """Run the main menu loop until the user chooses to exit."""
+
     manager = ParcelManager(DATA_FILE)
     print(manager.load_from_file())
 
@@ -142,8 +149,9 @@ def main():
                 # Stay in the menu so the records in memory are not lost.
                 print(f"Error: could not save records: {error}")
                 continue
-            print(f"Saved {manager.count_parcels()} parcel(s) "
-                  "to parcels.json. Goodbye!")
+            print(
+                f"Saved {manager.count_parcels()} parcel(s) to parcels.json. Goodbye!"
+            )
             break
         else:
             print("Invalid choice. Please enter a number from 1 to 4.")

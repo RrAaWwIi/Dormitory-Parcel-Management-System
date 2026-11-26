@@ -7,27 +7,29 @@ them from a JSON file.
 """
 
 import json
-import os
+from datetime import datetime
+from pathlib import Path
+from typing import cast
 
-from parcel import Parcel, parcel_from_dict
+from parcel import Parcel, ParcelDict, parcel_from_dict
 
 
 class ParcelManager:
     """Stores and manages every parcel in the dormitory."""
 
-    def __init__(self, file_path):
+    def __init__(self, file_path: Path) -> None:
         """
         Start with an empty list of parcels.
 
         Parameters:
             file_path (str): Where the JSON records file is stored.
         """
-        self.file_path = file_path
-        self.parcels = []
+        self.file_path: Path = file_path
+        self.parcels: list[Parcel] = []
 
     # ----- Saving and loading -----
 
-    def load_from_file(self):
+    def load_from_file(self) -> str:
         """
         Load parcels from the JSON file into self.parcels.
 
@@ -38,11 +40,12 @@ class ParcelManager:
         Returns:
             str: A message describing what happened.
         """
+
         try:
             with open(self.file_path, "r", encoding="utf-8") as file:
-                data = json.load(file)
+                data = cast(list[ParcelDict], json.load(file))
 
-            loaded_parcels = []
+            loaded_parcels: list[Parcel] = []
             for parcel_data in data:
                 loaded_parcels.append(parcel_from_dict(parcel_data))
 
@@ -50,16 +53,18 @@ class ParcelManager:
             return "No saved records found. Starting with an empty list."
 
         except (json.JSONDecodeError, KeyError, ValueError, TypeError):
-            backup_path = self.file_path + ".backup"
-            os.replace(self.file_path, backup_path)
-            return ("Warning: the records file was damaged and could not "
-                    f"be read. It was moved to {backup_path} so nothing is "
-                    "lost. Starting with an empty list.")
+            backup_path = self.file_path.with_name(self.file_path.name + ".backup")
+            _ = self.file_path.replace(backup_path)
+            return (
+                "Warning: the records file was damaged and could not "
+                f"be read. It was moved to {backup_path} so nothing is "
+                "lost. Starting with an empty list."
+            )
 
         self.parcels = loaded_parcels
         return f"Loaded {len(self.parcels)} parcel(s) from file."
 
-    def save_to_file(self):
+    def save_to_file(self) -> None:
         """
         Write every parcel to the JSON file.
 
@@ -69,15 +74,15 @@ class ParcelManager:
         Raises:
             OSError: If the file cannot be written.
         """
-        data = []
+
+        data: list[ParcelDict] = []
         for parcel in self.parcels:
             data.append(parcel.to_dict())
 
         with open(self.file_path, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=4)
 
-
-    def find_by_tracking_number(self, tracking_number):
+    def find_by_tracking_number(self, tracking_number: str) -> Parcel | None:
         """
         Find the parcel with this exact tracking number.
 
@@ -86,13 +91,14 @@ class ParcelManager:
         Returns:
             Parcel or None: The matching parcel, or None if not found.
         """
+
         tracking_number = tracking_number.upper()
         for parcel in self.parcels:
             if parcel.tracking_number == tracking_number:
                 return parcel
         return None
 
-    def search_by_student_name(self, name):
+    def search_by_student_name(self, name: str) -> list[Parcel]:
         """
         Find all parcels whose student name contains the given text.
 
@@ -102,25 +108,31 @@ class ParcelManager:
         Returns:
             list: Matching parcels (empty if nothing matches).
         """
+
         search_text = name.lower()
-        results = []
+        results: list[Parcel] = []
         for parcel in self.parcels:
             if search_text in parcel.student_name.lower():
                 results.append(parcel)
         return results
 
-    def tracking_number_exists(self, tracking_number):
+    def tracking_number_exists(self, tracking_number: str) -> bool:
         """
         Check whether a parcel with this tracking number is already registered.
 
         Returns:
             bool: True if the tracking number is already used, otherwise False.
         """
+
         return self.find_by_tracking_number(tracking_number) is not None
 
-
-    def register_parcel(self, student_name, room_number, tracking_number,
-                        arrival_time):
+    def register_parcel(
+        self,
+        student_name: str,
+        room_number: str,
+        tracking_number: str,
+        arrival_time: datetime,
+    ) -> Parcel:
         """
         Create a new Parcel, add it to the list and save the file.
 
@@ -131,18 +143,19 @@ class ParcelManager:
         Returns:
             Parcel: The parcel that was just registered.
         """
+
         if self.tracking_number_exists(tracking_number):
             raise ValueError(
                 f"Tracking number {tracking_number} is already registered."
             )
 
-        new_parcel = Parcel(student_name, room_number, tracking_number,
-                            arrival_time)
+        new_parcel = Parcel(student_name, room_number, tracking_number, arrival_time)
         self.parcels.append(new_parcel)
 
         self.save_to_file()
         return new_parcel
 
-    def count_parcels(self):
+    def count_parcels(self) -> int:
         """Return how many parcels are currently registered."""
+
         return len(self.parcels)
