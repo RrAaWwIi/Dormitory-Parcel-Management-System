@@ -13,8 +13,7 @@ from datetime import datetime
 from parcel import DATE_FORMAT
 from parcel_manager import ParcelManager
 
-DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                         "parcels.json")
+DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "parcels.json")
 
 
 def get_non_empty_input(prompt):
@@ -37,8 +36,9 @@ def get_arrival_time():
         datetime: The arrival date and time.
     """
     while True:
-        text = input("Arrival time (YYYY-MM-DD HH:MM), "
-                     "or press Enter for now: ").strip()
+        text = input(
+            "Arrival time (YYYY-MM-DD HH:MM), or press Enter for now: "
+        ).strip()
 
         if text == "":
             return datetime.now()
@@ -46,8 +46,7 @@ def get_arrival_time():
         try:
             arrival_time = datetime.strptime(text, DATE_FORMAT)
         except ValueError:
-            print("Invalid date/time. Example of a valid value: "
-                  "2026-11-26 14:30")
+            print("Invalid date/time. Example of a valid value: 2026-11-26 14:30")
             continue
 
         if arrival_time > datetime.now():
@@ -66,14 +65,17 @@ def register_parcel_menu(manager):
     arrival_time = get_arrival_time()
 
     try:
-        parcel = manager.register_parcel(student_name, room_number,
-                                         tracking_number, arrival_time)
+        parcel = manager.register_parcel(
+            student_name, room_number, tracking_number, arrival_time
+        )
     except ValueError as error:
         print(f"Registration failed: {error}")
         return
     except OSError as error:
-        print(f"Warning: the parcel was registered but could not be "
-              f"saved to the file: {error}")
+        print(
+            f"Warning: the parcel was registered but could not be "
+            f"saved to the file: {error}"
+        )
         return
 
     print("\nParcel registered and saved successfully!")
@@ -103,8 +105,7 @@ def search_by_tracking_menu(manager):
     parcel = manager.find_by_tracking_number(tracking_number)
 
     if parcel is None:
-        print(f"No parcel found with tracking number "
-              f"'{tracking_number.upper()}'.")
+        print(f"No parcel found with tracking number '{tracking_number.upper()}'.")
         return
 
     print("\nParcel found:")
@@ -142,8 +143,9 @@ def main():
                 # Stay in the menu so the records in memory are not lost.
                 print(f"Error: could not save records: {error}")
                 continue
-            print(f"Saved {manager.count_parcels()} parcel(s) "
-                  "to parcels.json. Goodbye!")
+            print(
+                f"Saved {manager.count_parcels()} parcel(s) to parcels.json. Goodbye!"
+            )
             break
         else:
             print("Invalid choice. Please enter a number from 1 to 4.")

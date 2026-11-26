@@ -52,9 +52,11 @@ class ParcelManager:
         except (json.JSONDecodeError, KeyError, ValueError, TypeError):
             backup_path = self.file_path + ".backup"
             os.replace(self.file_path, backup_path)
-            return ("Warning: the records file was damaged and could not "
-                    f"be read. It was moved to {backup_path} so nothing is "
-                    "lost. Starting with an empty list.")
+            return (
+                "Warning: the records file was damaged and could not "
+                f"be read. It was moved to {backup_path} so nothing is "
+                "lost. Starting with an empty list."
+            )
 
         self.parcels = loaded_parcels
         return f"Loaded {len(self.parcels)} parcel(s) from file."
@@ -75,7 +77,6 @@ class ParcelManager:
 
         with open(self.file_path, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=4)
-
 
     def find_by_tracking_number(self, tracking_number):
         """
@@ -118,9 +119,7 @@ class ParcelManager:
         """
         return self.find_by_tracking_number(tracking_number) is not None
 
-
-    def register_parcel(self, student_name, room_number, tracking_number,
-                        arrival_time):
+    def register_parcel(self, student_name, room_number, tracking_number, arrival_time):
         """
         Create a new Parcel, add it to the list and save the file.
 
@@ -136,8 +135,7 @@ class ParcelManager:
                 f"Tracking number {tracking_number} is already registered."
             )
 
-        new_parcel = Parcel(student_name, room_number, tracking_number,
-                            arrival_time)
+        new_parcel = Parcel(student_name, room_number, tracking_number, arrival_time)
         self.parcels.append(new_parcel)
 
         self.save_to_file()

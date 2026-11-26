@@ -18,8 +18,14 @@ STATUS_WAITING = "Waiting for pickup"
 class Parcel:
     """Represents a single parcel stored at the dormitory."""
 
-    def __init__(self, student_name, room_number, tracking_number,
-                 arrival_time, status=STATUS_WAITING):
+    def __init__(
+        self,
+        student_name,
+        room_number,
+        tracking_number,
+        arrival_time,
+        status=STATUS_WAITING,
+    ):
         """
         Create a new Parcel.
 
