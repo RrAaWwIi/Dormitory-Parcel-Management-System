@@ -13,8 +13,6 @@ from datetime import datetime
 from parcel import DATE_FORMAT
 from parcel_manager import ParcelManager
 
-# The records file is kept in the same folder as this main.py file,
-# no matter which folder the program is started from.
 DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                          "parcels.json")
 
@@ -151,7 +149,5 @@ def main():
             print("Invalid choice. Please enter a number from 1 to 4.")
 
 
-# This line means: only run main() when this file is started directly
-# (for example with "python main.py"), not when it is imported.
 if __name__ == "__main__":
     main()

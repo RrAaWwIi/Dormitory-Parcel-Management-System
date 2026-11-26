@@ -42,8 +42,6 @@ class ParcelManager:
             with open(self.file_path, "r", encoding="utf-8") as file:
                 data = json.load(file)
 
-            # Build a separate list first. If one record is broken we
-            # jump to "except" and self.parcels stays untouched.
             loaded_parcels = []
             for parcel_data in data:
                 loaded_parcels.append(parcel_from_dict(parcel_data))
@@ -78,7 +76,6 @@ class ParcelManager:
         with open(self.file_path, "w", encoding="utf-8") as file:
             json.dump(data, file, indent=4)
 
-    # ----- Searching -----
 
     def find_by_tracking_number(self, tracking_number):
         """
@@ -121,7 +118,6 @@ class ParcelManager:
         """
         return self.find_by_tracking_number(tracking_number) is not None
 
-    # ----- Registering -----
 
     def register_parcel(self, student_name, room_number, tracking_number,
                         arrival_time):
@@ -144,7 +140,6 @@ class ParcelManager:
                             arrival_time)
         self.parcels.append(new_parcel)
 
-        # Records changed, so save straight away.
         self.save_to_file()
         return new_parcel
 
